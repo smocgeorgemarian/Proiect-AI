@@ -5,21 +5,22 @@ from model.ModelFactory import ModelFactory
 from output.PrettyPrinter import PrettyPrinter
 
 
-def main():
-    algorithm = HCAlgorithm(model, x_train, y_train, x_test, y_test, final_data=final_data, test_data=test_data)
+def main(algorith_class):
+    algorithm = algorith_class(model, x_train, y_train, x_test, y_test, final_data=final_data, test_data=test_data)
     algorithm.run()
 
 
 if __name__ == '__main__':
     x_train, x_test, y_train, y_test = InputLoader.load()
 
-    final_data = []
-    test_data = []
+    for algorithm_class in [HCAlgorithm, BPAlgorithm]:
+        final_data = []
+        test_data = []
+        n_repetitions = 3
 
-    n_repetitions = 3
-    for repetition in range(n_repetitions):
-        model = ModelFactory.create_model(is_random=False)
-        main()
+        for repetition in range(n_repetitions):
+            model = ModelFactory.create_model(is_random=False)
+            main(algorithm_class)
 
-    PrettyPrinter.print(test_data, final_data)
+        PrettyPrinter.print(test_data, final_data)
 

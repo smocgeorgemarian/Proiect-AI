@@ -14,4 +14,4 @@ class InputLoader:
         y1 = encoder.fit_transform(y)
         y = pd.get_dummies(y1).values
         # x_train, x_test, y_train, y_test
-        return train_test_split(x, y, test_size=0.2, random_state=0)
+        return train_test_split(x, y, test_size=0.3, random_state=0)
