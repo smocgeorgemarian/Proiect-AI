@@ -6,9 +6,10 @@ from algorithm.Algorithm import Algorithm
 
 class HCAlgorithm(Algorithm):
     def __init__(self, model, x_train, y_train, x_test, y_test, final_data, test_data, no_iterations, experiment_label,
-                 start_index):
-        super().__init__(model, x_train, y_train, x_test, y_test, final_data, test_data, no_iterations,
-                         experiment_label, start_index)
+                 start_index, lock):
+        super().__init__(model=model, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                         final_data=final_data, test_data=test_data, no_iterations=no_iterations,
+                         experiment_label=experiment_label, start_index=start_index, lock=lock)
 
     def run(self):
         opt = keras.optimizers.Adam(learning_rate=0.0001)
@@ -30,29 +31,23 @@ class HCAlgorithm(Algorithm):
             else:
                 self.model.set_weights(old_weights)
 
-            self.final_data.append({
+            self.tmp_final_data.append({
                 'experiment': self.experiment_label,
                 'iteration': self.start_index + it_index,
                 'result': old_acc
             })
 
             _, test_acc = self.model.evaluate(self.x_test, self.y_test, verbose=1)
-            self.test_data.append({
+            self.tmp_test_data.append({
                 'experiment': self.experiment_label,
                 'iteration': self.start_index + it_index,
                 'result': test_acc
             })
 
-        # if self.plot_final_data:
-        #     self.plot_final_data.append({
-        #         'experiment': self.experiment_label,
-        #         'result': old_acc
-        #     })
-        # if self.plot_test_data:
-        #     self.plot_test_data.append({
-        #         'experiment': self.experiment_label,
-        #         'result': self.model.evaluate(self.x_test, self.y_test, verbose=0)
-        #     })
+        with self.lock:
+            self.final_data.extend(self.tmp_final_data)
+            self.test_data.extend(self.tmp_test_data)
+        self.save_model_if_needed()
         return self.model
 
     def __str__(self):

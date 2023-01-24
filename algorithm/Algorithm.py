@@ -1,6 +1,11 @@
+import os
+
+NO_RUNS = 200
+
+
 class Algorithm:
     def __init__(self, model, x_train, y_train, x_test, y_test, final_data, test_data, no_iterations, experiment_label,
-                 start_index):
+                 start_index, lock):
         self.model = model
         self.x_train = x_train
         self.y_train = y_train
@@ -12,6 +17,14 @@ class Algorithm:
         self.no_iterations = no_iterations
         self.experiment_label = experiment_label
         self.start_index = start_index
+        self.lock = lock
+        self.tmp_final_data = list()
+        self.tmp_test_data = list()
 
     def run(self):
         pass
+
+    def save_model_if_needed(self):
+        if self.start_index == 0 and self.no_iterations != NO_RUNS:
+            return
+        self.model.save(os.path.join('.', 'storage', 'model'))

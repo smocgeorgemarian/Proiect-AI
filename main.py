@@ -1,10 +1,12 @@
+import threading
+from threading import Thread
+
+from algorithm.Algorithm import NO_RUNS
 from algorithm.BPAlgorithm import BPAlgorithm
 from algorithm.HCAlgorithm import HCAlgorithm
 from input.InputLoader import InputLoader
 from model.ModelFactory import ModelFactory
 from output.PrettyPrinter import PrettyPrinter
-
-NO_RUNS = 150
 
 
 def get_experiment_label(algorithm_classes):
@@ -19,16 +21,17 @@ def get_experiment_label(algorithm_classes):
     return experiment_label
 
 
-def main(algorithm_classes):
-    global model
+def main(algorithm_classes, lock):
+    model = ModelFactory.create_model(is_random=False)
     batch_size = NO_RUNS // len(algorithm_classes)
     experiment_label = get_experiment_label(algorithm_classes)
 
     for algo_index, algo in enumerate(algorithm_classes):
         start_index = algo_index * batch_size
-        algorithm = algo(model=model, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test, final_data=final_data,
+        algorithm = algo(model=model, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+                         final_data=final_data,
                          test_data=test_data, no_iterations=batch_size, experiment_label=experiment_label,
-                         start_index=start_index)
+                         start_index=start_index, lock=lock)
         model = algorithm.run()
 
 
@@ -40,11 +43,16 @@ if __name__ == '__main__':
     plot_test_data = []
 
     n_repetitions = 3
-    # for algorithm_class in [(BPAlgorithm,), (HCAlgorithm,), (HCAlgorithm, BPAlgorithm), (BPAlgorithm, HCAlgorithm)]:
-    for algorithm_class in [(BPAlgorithm,)]:
+    threads = []
+    lock = threading.Lock()
+    for algorithm_class in [(BPAlgorithm,), (HCAlgorithm,), (HCAlgorithm, BPAlgorithm), (BPAlgorithm, HCAlgorithm)]:
         for repetition in range(n_repetitions):
-            model = ModelFactory.create_model(is_random=False)
-            main(algorithm_class)
+            t = Thread(target=main, args=(algorithm_class, lock))
+            threads.append(t)
+            t.start()
+
+    for t in threads:
+        t.join()
 
     PrettyPrinter.print_lineplot(test_data, final_data)
     PrettyPrinter.print_boxplot(test_data, final_data)
