@@ -1,0 +1,14 @@
+{
+  "no_layers": 2,
+  "activations": [
+    "relu",
+    "relu",
+    "softmax"
+  ],
+  "sizes": [
+    16,
+    8,
+    3
+  ],
+  "input_shape": 4
+}
