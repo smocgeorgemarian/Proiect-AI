@@ -1,6 +1,6 @@
 import os
 
-NO_RUNS = 200
+NO_EPOCHS = 150
 
 
 class Algorithm:
@@ -25,6 +25,6 @@ class Algorithm:
         pass
 
     def save_model_if_needed(self):
-        if self.start_index == 0 and self.no_iterations != NO_RUNS:
+        if self.start_index == 0 and self.no_iterations != NO_EPOCHS:
             return
         self.model.save(os.path.join('.', 'storage', 'model'))

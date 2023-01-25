@@ -3,7 +3,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
 
-RELU = 'sigmoid'
+ACTIVATION = 'sigmoid'
 
 
 class ModelFactory:
@@ -15,7 +15,7 @@ class ModelFactory:
         # model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
         # model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
 
-        model.add(Dense(16, input_shape=(4,), activation=RELU))
-        model.add(Dense(8, activation=RELU))
+        model.add(Dense(16, input_shape=(4,), activation=ACTIVATION))
+        model.add(Dense(8, activation=ACTIVATION))
         model.add(Dense(3, activation='softmax'))
         return model

@@ -12,13 +12,14 @@ class BPAlgorithm(Algorithm):
                          experiment_label=experiment_label, start_index=start_index, lock=lock)
 
     def run(self):
-        opt = keras.optimizers.Adam(learning_rate=0.001)
-        self.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-        history = self.model.fit(self.x_train, self.y_train, epochs=self.no_iterations, batch_size=10,
+        if self.start_index == 0:
+            opt = keras.optimizers.Adam(learning_rate=0.01)
+            self.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+        history = self.model.fit(self.x_train, self.y_train, epochs=self.no_iterations, batch_size=10, verbose=0,
                                  callbacks=[MyCallback(model=self.model, x_test=self.x_test, y_test=self.y_test,
                                                        test_data=self.tmp_test_data, label=self.experiment_label,
                                                        start_index=self.start_index, lock=self.lock)])
-        for it_index, it_acc in enumerate(history.history['accuracy'], start=0):
+        for it_index, it_acc in enumerate(history.history['accuracy']):
             self.tmp_final_data.append({
                 'experiment': self.experiment_label,
                 'iteration': self.start_index + it_index,

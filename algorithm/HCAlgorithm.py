@@ -12,8 +12,9 @@ class HCAlgorithm(Algorithm):
                          experiment_label=experiment_label, start_index=start_index, lock=lock)
 
     def run(self):
-        opt = keras.optimizers.Adam(learning_rate=0.0001)
-        self.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+        if self.start_index == 0:
+            opt = keras.optimizers.Adam(learning_rate=0.01)
+            self.model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
         old_loss, old_acc = self.model.evaluate(self.x_train, self.y_train, verbose=0)
         for it_index in range(self.no_iterations):
@@ -21,10 +22,10 @@ class HCAlgorithm(Algorithm):
             old_weights = list(self.model.get_weights())
             result_weights = [np.zeros(shape=w.shape) for w in self.model.get_weights()]
             for w_index, weight in enumerate(old_weights):
-                result_weights[w_index] = ((delta_weights[w_index] + weight) % 1 + 1) % 1
+                result_weights[w_index] = (delta_weights[w_index] + weight) % 1
 
             self.model.set_weights(delta_weights)
-            new_loss, new_acc = self.model.evaluate(self.x_train, self.y_train, verbose=1)
+            new_loss, new_acc = self.model.evaluate(self.x_train, self.y_train, verbose=0)
             if new_loss <= old_loss:
                 old_loss = new_loss
                 old_acc = new_acc
